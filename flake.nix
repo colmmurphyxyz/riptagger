@@ -23,6 +23,7 @@
             clang
             llvmPackages.bintools
             rustup
+            taglib_1
           ];
 
           RUSTC_VERSION = overrides.toolchain.channel;
