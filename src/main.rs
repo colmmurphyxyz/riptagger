@@ -4,37 +4,33 @@
 extern crate taglib;
 
 use std::env;
+use std::fs;
+use toml::Table;
+
+pub mod track_tags;
+pub mod album_tags;
+
+use track_tags::TrackTags;
 
 fn main() {
     let cwd = env::current_dir().unwrap();
     println!("Current dir is {}.", cwd.display());
-
     let file_name = "test.flac";
 
-    let file = match taglib::File::new_type(file_name, taglib::FileType::FLAC) {
-        Ok(f) => f,
-        Err(e) => {
-            println!("Invalid file {} (error: {:?})", file_name, e);
-            panic!("boo!")
+    let config_path = "scratch/config.toml";
+    let config = fs::read_to_string(config_path).unwrap().parse::<Table>();
+    match config {
+        Ok(table) => {
+            println!("Read config file. {}", table);
         }
-    };
-
-    match file.tag() {
-        Ok(t) => {
-            println!("-- TAG --");
-            println!("title   - {}", t.title().unwrap_or_default());
-            println!("artist  - {}", t.artist().unwrap_or_default());
-            println!("album   - {}", t.album().unwrap_or_default());
-            println!("year    - {}", t.year().unwrap_or_default());
-            println!("comment - {}", t.comment().unwrap_or_default());
-            println!("track   - {}", t.track().unwrap_or_default());
-            println!("genre   - {}", t.genre().unwrap_or_default());
-        },
-        Err(e) => {
-            println!("No available tags for {} (error: {:?})", file_name, e);
-            panic!("!!!");
-        }
+        Err(e) => println!("Error reading config file {:?}", e)
     }
 
-    println!("Hello, world!");
+    let foo: TrackTags = TrackTags {
+        album_name:  "foo",
+        artist_name: "bar",
+        year:        "1901",
+        track_name:  "bruh",
+        genre:       "blues",
+    };
 }
