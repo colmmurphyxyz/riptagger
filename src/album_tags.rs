@@ -1,3 +1,6 @@
+// Copyright: (c) 2025, Colm Murphy
+// GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+use std::fmt;
 use toml::{Table, Value};
 
 use crate::TrackTags;
@@ -23,6 +26,12 @@ pub struct AlbumTags {
     tracks: Vec<String>,
 }
 
+impl fmt::Display for AlbumTags {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {}, {}, {:#?}, {})", self.album_name, self.artist_name, self.year, self.tracks, self.genre)
+    }
+}
+
 fn get_string_array(table: &Table, key: &str) -> Result<Vec<String>, ConfigError> {
     match table.get(key) {
         Some(Value::Array(arr)) => {
@@ -38,11 +47,11 @@ fn get_string_array(table: &Table, key: &str) -> Result<Vec<String>, ConfigError
 
 impl AlbumTags {
     pub fn from_toml(table: Table) -> Result<Self, ConfigError> {
-        if !table.contains_key("artist_name") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'artist_name'.")));
+        if !table.contains_key("artist") {
+            return Err(ConfigError::MissingKey(String::from("Missing key 'artist'.")));
         }
-        if !table.contains_key("album_name") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'album_name'.")));
+        if !table.contains_key("album") {
+            return Err(ConfigError::MissingKey(String::from("Missing key 'album'.")));
         }
         if !table.contains_key("year") {
             return Err(ConfigError::MissingKey(String::from("Missing key 'year'.")));
@@ -57,8 +66,8 @@ impl AlbumTags {
         };
 
         Ok(AlbumTags {
-            artist_name: table.get("artist_name").unwrap().to_string(),
-            album_name: table.get("artist_name").unwrap().to_string(),
+            artist_name: table.get("artist").unwrap().to_string(),
+            album_name: table.get("album").unwrap().to_string(),
             year: table.get("year").unwrap().to_string(),
             genre: table.get("genre").unwrap().to_string(),
             tracks: tracks,

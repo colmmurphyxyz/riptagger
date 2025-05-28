@@ -21,7 +21,8 @@ fn main() {
     let config = fs::read_to_string(config_path).unwrap().parse::<Table>();
     match config {
         Ok(table) => {
-            let my_config = AlbumTags::from_toml(table);
+            let my_config = AlbumTags::from_toml(table).unwrap();
+            println!("{}", my_config)
         }
         Err(e) => println!("Error reading config file {:?}", e)
     }
