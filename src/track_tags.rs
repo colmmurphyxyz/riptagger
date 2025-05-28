@@ -2,11 +2,11 @@ use std::fmt;
 
 #[derive(Debug)]
 pub struct TrackTags {
-    pub album_name: &'static str,
-    pub artist_name: &'static str,
-    pub year: &'static str,
-    pub track_name: &'static str,
-    pub genre: &'static str,
+    pub album_name: String,
+    pub artist_name: String,
+    pub year: String,
+    pub track_name: String,
+    pub genre: String,
 }
 
 impl fmt::Display for TrackTags {
