@@ -22,6 +22,7 @@
           buildInputs = with pkgs; [
             bashInteractive
             clang
+            flac
             llvmPackages.bintools
             rustup
             taglib_1
