@@ -1,3 +1,6 @@
+// Copyright: (c) 2025, Colm Murphy
+// GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 use std::ffi::OsStr;
 use std::fs;
 use std::fs::DirEntry;

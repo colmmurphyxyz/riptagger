@@ -3,30 +3,8 @@
 use std::fmt;
 use toml::{Table, Value};
 
+use crate::config::ConfigError;
 use crate::TrackTags;
-
-#[derive(Debug)]
-pub enum ConfigError {
-    MissingKey(String),
-    TypeError(String),
-}
-
-impl From<&str> for ConfigError {
-    fn from(s: &str) -> Self {
-        ConfigError::TypeError(s.to_string())
-    }
-}
-
-impl fmt::Display for ConfigError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ConfigError::MissingKey(k) => write!(f, "Missing key: {}", k),
-            ConfigError::TypeError(t) => write!(f, "Type error: {}", t),
-        }
-    }
-}
-
-impl std::error::Error for ConfigError {}
 
 #[derive(Debug)]
 pub struct AlbumTags {
