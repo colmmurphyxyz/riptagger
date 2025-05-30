@@ -22,9 +22,10 @@ impl From<&str> for ConfigError {
 
 impl fmt::Display for ConfigError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use ConfigError::*;
         match self {
-            ConfigError::MissingKey(k) => write!(f, "Missing key: {}", k),
-            ConfigError::TypeError(t) => write!(f, "Type error: {}", t),
+            MissingKey(k) => write!(f, "Missing key: {}", k),
+            TypeError(t) => write!(f, "Type error: {}", t),
         }
     }
 }

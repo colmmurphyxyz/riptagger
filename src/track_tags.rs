@@ -3,6 +3,8 @@
 
 use std::fmt;
 
+use taglib::FileError;
+
 #[derive(Debug)]
 pub struct TrackTags {
     pub album_name: String,
@@ -16,4 +18,28 @@ impl fmt::Display for TrackTags {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {}, {}, {}, {})", self.album_name, self.artist_name, self.year, self.track_name, self.genre)
     }
+}
+
+pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), FileError> {
+    let file = match taglib::File::new(track_path) {
+        Ok(f) => f,
+        Err(e) => {
+            return Err(e);
+        }
+    };
+    let mut t = file.tag()?;
+
+    t.set_album(&tags.album_name);
+    t.set_artist(&tags.artist_name);
+    match str::parse::<u32>(&tags.year) {
+        Ok(track_year) => {
+            t.set_year(track_year);
+        },
+        _ => {}
+    }
+    // t.set_track(1);
+    t.set_title(&tags.track_name);
+    t.set_genre(&tags.genre);
+    file.save();
+    Ok(())
 }
