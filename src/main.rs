@@ -3,37 +3,40 @@
 
 extern crate taglib;
 
-use std::env;
-use config::load_config_from_file;
-
 pub mod config;
 pub mod track_tags;
 pub mod album_tags;
 pub mod fs_utils;
 
+use clap::Parser;
+
+use config::load_config_from_file;
 use track_tags::{assign_tags_to_track, TrackTags};
 use album_tags::{to_track_tags, AlbumTags};
 use fs_utils::get_audio_files_in_directory;
 
-fn main() {
-    let cwd = env::current_dir().unwrap();
-    println!("Current dir is {}.", cwd.display());
+#[derive(Parser)]
+struct Cli {
+    config_path: String,
+    album_path: String,
+}
 
-    let config_path = "scratch/config.toml";
-    let album_path = "scratch/album";
+fn main() {
+    let args = Cli::parse();
+    println!("args: config {:?}, path {:?}", args.config_path, args.album_path);
 
     // there's surely a better way to do this??
-    let album_tags: AlbumTags = match load_config_from_file("scratch/config.toml") {
+    let album_tags: AlbumTags = match load_config_from_file(&args.config_path) {
         Ok(cfg) => cfg,
         _ => {
-            panic!("Could not read config {config_path}.")
+            panic!("Could not read config {0}.", &args.config_path)
         }
     };
 
     println!("{}", album_tags);
 
     println!("Audio files");
-    let mut tracks = match get_audio_files_in_directory(album_path) {
+    let mut tracks = match get_audio_files_in_directory(&args.album_path) {
         Ok(entries) => {
             entries.iter()
                 .map(|de| String::from(de.path().as_os_str().to_str().unwrap()))
