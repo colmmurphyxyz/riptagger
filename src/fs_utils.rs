@@ -55,7 +55,7 @@ fn normalize(s: &str) -> String {
         .filter(|c| !DISALLOWED_CHARS.contains(c)).collect::<String>()
 }
 
-pub fn rename_audio_file(file_path: &str, track_number: u32, track_name: &str) -> std::io::Result<()> {
+pub fn rename_audio_file(file_path: &str, track_number: u32, track_name: &str) -> std::io::Result<String> {
     let parent = Path::new(file_path).parent().unwrap_or(Path::new("."));
     // original file extension, with leading .
     let extension = Path::new(file_path)
@@ -70,7 +70,10 @@ pub fn rename_audio_file(file_path: &str, track_number: u32, track_name: &str) -
         track_number,
         normalize(track_name),
         extension.unwrap_or(String::from(".unknown")));
-    let new_path = parent.join(new_name);
+    let new_path = parent.join(&new_name);
 
-    rename(file_path, new_path)
+    match rename(file_path, new_path) {
+        Ok(_) => Ok(new_name),
+        Err(e) => Err(e)
+    }
 }

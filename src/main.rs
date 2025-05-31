@@ -15,27 +15,34 @@ use track_tags::{assign_tags_to_track, TrackTags};
 use album_tags::{to_track_tags, AlbumTags};
 use fs_utils::{get_audio_files_in_directory, rename_audio_file};
 
-#[derive(Parser)]
+static ABOUT: &str = "Copyright (C) 2025 Colm Murphy
+GPLv3: GNU GPL version 3 or later <https://www.gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.";
+
+#[derive(Parser, Debug)]
+#[command(version, about=ABOUT, long_about = None)]
 struct Cli {
+    #[arg(short, long)]
     config_path: String,
+
+    #[arg(short, long)]
     album_path: String,
+
+    #[arg(short, long, default_value_t = false)]
+    no_rename_files: bool,
 }
 
 fn main() {
     let args = Cli::parse();
-    println!("args: config {:?}, path {:?}", args.config_path, args.album_path);
 
-    // there's surely a better way to do this??
     let album_tags: AlbumTags = match load_config_from_file(&args.config_path) {
         Ok(cfg) => cfg,
         _ => {
-            panic!("Could not read config {0}.", &args.config_path)
+            panic!("Could not read config file '{0}'.", &args.config_path)
         }
     };
 
-    println!("{}", album_tags);
-
-    println!("Audio files");
     let mut tracks = match get_audio_files_in_directory(&args.album_path) {
         Ok(entries) => {
             entries.iter()
@@ -56,18 +63,23 @@ fn main() {
         let tags = &track_tags[i];
         match assign_tags_to_track(tags, track_path) {
             Ok(_) => {
-                println!("Asigned {}", track_path);
+                println!("Tagged '{}'", track_path);
             },
             Err(e) => {
-                println!("Error: {:#?}", e);
+                println!("Error tagging '{}': {:#?}", track_path, e);
                 continue
             }
         }
+        if args.no_rename_files {
+            continue;
+        }
         // rename file to 'track number - track name'
         match rename_audio_file(track_path, tags.track_number, &tags.track_name) {
-            Ok(_) => {}
+            Ok(new_name) => {
+                println!("Renamed '{}' to '{}'", track_path, new_name)
+            }
             Err(e) => {
-                println!("Error renaming file {0} ({1})", track_path, e);
+                println!("Error renaming file '{0}' ({1})", track_path, e);
             }
         }
     }
