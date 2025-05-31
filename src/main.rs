@@ -13,7 +13,7 @@ use clap::Parser;
 use config::load_config_from_file;
 use track_tags::{assign_tags_to_track, TrackTags};
 use album_tags::{to_track_tags, AlbumTags};
-use fs_utils::get_audio_files_in_directory;
+use fs_utils::{get_audio_files_in_directory, rename_audio_file};
 
 #[derive(Parser)]
 struct Cli {
@@ -60,6 +60,14 @@ fn main() {
             },
             Err(e) => {
                 println!("Error: {:#?}", e);
+                continue
+            }
+        }
+        // rename file to 'track number - track name'
+        match rename_audio_file(track_path, tags.track_number, &tags.track_name) {
+            Ok(_) => {}
+            Err(e) => {
+                println!("Error renaming file {0} ({1})", track_path, e);
             }
         }
     }
