@@ -72,13 +72,16 @@ impl AlbumTags {
 pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
     let mut tags = Vec::new();
     let mut index = 0;
-    while index < album.tracks.len() {
+    let track_total = album.tracks.len();
+    while index < track_total {
         tags.push(TrackTags {
             album_name: album.album_name.clone(),
             artist_name: album.artist_name.clone(),
             year: album.year.clone(),
             track_name: album.tracks[index].clone(),
             genre: album.genre.clone(),
+            track_number: (index + 1) as u32,
+            track_total: track_total as u32,
         });
 
         index += 1;

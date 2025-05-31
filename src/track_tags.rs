@@ -12,6 +12,8 @@ pub struct TrackTags {
     pub year: u32,
     pub track_name: String,
     pub genre: String,
+    pub track_number: u32,
+    pub track_total: u32,
 }
 
 impl fmt::Display for TrackTags {
@@ -32,9 +34,9 @@ pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Fi
     t.set_album(&tags.album_name);
     t.set_artist(&tags.artist_name);
     t.set_year(tags.year);
-    // t.set_track(1);
     t.set_title(&tags.track_name);
     t.set_genre(&tags.genre);
+    t.set_track(tags.track_number);
     file.save();
     Ok(())
 }
