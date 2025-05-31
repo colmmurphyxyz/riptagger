@@ -8,11 +8,11 @@ use crate::TrackTags;
 
 #[derive(Debug)]
 pub struct AlbumTags {
-    album_name: String,
-    artist_name: String,
-    year: u32,
-    genre: String,
-    tracks: Vec<String>,
+    pub album_name: String,
+    pub artist_name: String,
+    pub year: u32,
+    pub genre: String,
+    pub tracks: Vec<String>,
 }
 
 impl fmt::Display for AlbumTags {
@@ -59,11 +59,12 @@ impl AlbumTags {
             Err(e) => return Err(e)
         };
 
+        // FIXME: this is not very safe
         Ok(AlbumTags {
-            artist_name: table.get("artist").unwrap().to_string(),
-            album_name: table.get("album").unwrap().to_string(),
+            artist_name: table.get("artist").unwrap().as_str().unwrap().to_string(),
+            album_name: table.get("album").unwrap().as_str().unwrap().to_string(),
             year: table.get("year").unwrap().to_string().parse::<u32>().unwrap(),
-            genre: table.get("genre").unwrap().to_string(),
+            genre: table.get("genre").unwrap().as_str().unwrap().to_string(),
             tracks: tracks,
         })
     }
