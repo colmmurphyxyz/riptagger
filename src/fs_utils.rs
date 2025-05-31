@@ -74,6 +74,6 @@ pub fn rename_audio_file(file_path: &str, track_number: u32, track_name: &str) -
 
     match rename(file_path, new_path) {
         Ok(_) => Ok(new_name),
-        Err(e) => Err(e)
+        Err(e) => Err(e),
     }
 }
