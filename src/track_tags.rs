@@ -9,7 +9,7 @@ use taglib::FileError;
 pub struct TrackTags {
     pub album_name: String,
     pub artist_name: String,
-    pub year: String,
+    pub year: u32,
     pub track_name: String,
     pub genre: String,
 }
@@ -31,12 +31,7 @@ pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Fi
 
     t.set_album(&tags.album_name);
     t.set_artist(&tags.artist_name);
-    match str::parse::<u32>(&tags.year) {
-        Ok(track_year) => {
-            t.set_year(track_year);
-        },
-        _ => {}
-    }
+    t.set_year(tags.year);
     // t.set_track(1);
     t.set_title(&tags.track_name);
     t.set_genre(&tags.genre);

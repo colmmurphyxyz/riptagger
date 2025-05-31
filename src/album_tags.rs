@@ -10,7 +10,7 @@ use crate::TrackTags;
 pub struct AlbumTags {
     album_name: String,
     artist_name: String,
-    year: String,
+    year: u32,
     genre: String,
     tracks: Vec<String>,
 }
@@ -44,6 +44,11 @@ impl AlbumTags {
         }
         if !table.contains_key("year") {
             return Err(ConfigError::MissingKey(String::from("Missing key 'year'.")));
+        } else {
+            let n = table.get("year").unwrap().to_string().parse::<u32>();
+            if n.is_err() {
+                return Err(ConfigError::TypeError(String::from("Expected numerical value for key 'year'.")));
+            }
         }
         if !table.contains_key("genre") {
             return Err(ConfigError::MissingKey(String::from("Missing key 'genre'.")));
@@ -57,7 +62,7 @@ impl AlbumTags {
         Ok(AlbumTags {
             artist_name: table.get("artist").unwrap().to_string(),
             album_name: table.get("album").unwrap().to_string(),
-            year: table.get("year").unwrap().to_string(),
+            year: table.get("year").unwrap().to_string().parse::<u32>().unwrap(),
             genre: table.get("genre").unwrap().to_string(),
             tracks: tracks,
         })
