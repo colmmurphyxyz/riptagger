@@ -36,6 +36,14 @@ fn get_string_array(table: &Table, key: &str) -> Result<Vec<String>, ConfigError
     }
 }
 
+fn get_u32_array<T>(arr: &Vec<Value>) -> Vec<u32> {
+    let xs: Vec<u32> = arr
+        .iter()
+        .map(|x| x.as_integer().and_then(|i| u32::try_from(i).ok()).unwrap())
+        .collect();
+    xs
+}
+
 impl AlbumTags {
     pub fn from_toml(table: Table) -> Result<Self, ConfigError> {
         if !table.contains_key("artist") {
@@ -63,6 +71,21 @@ impl AlbumTags {
 
         let track_total = tracks.len() as u32;
 
+        let disc_total = match table.get("disc_total") {
+            Some(x) => x.to_string().parse::<u32>().ok(),
+            None => {
+                println!("Missing key 'disc_total'");
+                Some(1)
+            }
+        };
+        let tracks_per_disc = match table.get("tracks_per_disc") {
+            Some(Value::Array(x)) => get_u32_array::<u32>(x),
+            _ => {
+                println!("Missing array key: 'tracks_per_disc'");
+                vec![track_total]
+            }
+        };
+
         // FIXME: this is not very safe
         Ok(AlbumTags {
             artist_name: table.get("artist").unwrap().as_str().unwrap().to_string(),
@@ -70,10 +93,20 @@ impl AlbumTags {
             year: table.get("year").and_then(|o| o.to_string().parse::<u32>().ok()),
             genre: table.get("genre").and_then(|o| Some(o.to_string())),
             tracks: tracks,
-            disc_total: Some(1),
-            tracks_per_disc: Some(vec![track_total]),
+            disc_total: disc_total,
+            tracks_per_disc: Some(tracks_per_disc),
         })
     }
+}
+
+fn get_disc_number(tracks_per_disc: &Vec<u32>, track_num: u32) -> u32 {
+    let mut x = 0;
+    let mut i: usize = 0;
+    while x <= track_num && i < tracks_per_disc.len() {
+        x += tracks_per_disc[i];
+        i += 1;
+    }
+    i as u32
 }
 
 pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
@@ -81,6 +114,10 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
     let mut index = 0;
     let track_total = album.tracks.len();
     while index < track_total {
+        let mut disc_num = 1;
+        if let Some(ref tpd) = album.tracks_per_disc {
+            disc_num = get_disc_number(&tpd, index as u32);   
+        }
         tags.push(TrackTags {
             album_name: album.album_name.clone(),
             artist_name: album.artist_name.clone(),
@@ -89,8 +126,8 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
             genre: album.genre.clone(),
             track_number: (index + 1) as u32,
             track_total: track_total as u32,
-            disc_number: Some(1),
-            disc_total: Some(1),
+            disc_number: Some(disc_num),
+            disc_total: album.disc_total,
         });
 
         index += 1;
