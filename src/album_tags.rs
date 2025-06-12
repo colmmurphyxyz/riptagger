@@ -6,18 +6,20 @@ use toml::{Table, Value};
 use crate::config::ConfigError;
 use crate::TrackTags;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AlbumTags {
     pub album_name: String,
     pub artist_name: String,
-    pub year: u32,
-    pub genre: String,
+    pub year: Option<u32>,
+    pub genre: Option<String>,
     pub tracks: Vec<String>,
+    pub disc_total: Option<u32>,
+    pub tracks_per_disc: Option<Vec<u32>>,
 }
 
 impl fmt::Display for AlbumTags {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {}, {}, {:#?}, {})", self.album_name, self.artist_name, self.year, self.tracks, self.genre)
+        write!(f, "({}, {}, {:?}, {:#?}, {:?})", self.album_name, self.artist_name, self.year, self.tracks, self.genre)
     }
 }
 
@@ -59,13 +61,17 @@ impl AlbumTags {
             Err(e) => return Err(e)
         };
 
+        let track_total = tracks.len() as u32;
+
         // FIXME: this is not very safe
         Ok(AlbumTags {
             artist_name: table.get("artist").unwrap().as_str().unwrap().to_string(),
             album_name: table.get("album").unwrap().as_str().unwrap().to_string(),
-            year: table.get("year").unwrap().to_string().parse::<u32>().unwrap(),
-            genre: table.get("genre").unwrap().as_str().unwrap().to_string(),
+            year: Some(table.get("year").unwrap().to_string().parse::<u32>().unwrap()),
+            genre: Some(table.get("genre").unwrap().as_str().unwrap().to_string()),
             tracks: tracks,
+            disc_total: Some(1),
+            tracks_per_disc: Some(vec![track_total]),
         })
     }
 }
@@ -83,6 +89,8 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
             genre: album.genre.clone(),
             track_number: (index + 1) as u32,
             track_total: track_total as u32,
+            disc_number: Some(1),
+            disc_total: Some(1),
         });
 
         index += 1;
