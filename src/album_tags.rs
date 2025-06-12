@@ -67,8 +67,8 @@ impl AlbumTags {
         Ok(AlbumTags {
             artist_name: table.get("artist").unwrap().as_str().unwrap().to_string(),
             album_name: table.get("album").unwrap().as_str().unwrap().to_string(),
-            year: Some(table.get("year").unwrap().to_string().parse::<u32>().unwrap()),
-            genre: Some(table.get("genre").unwrap().as_str().unwrap().to_string()),
+            year: table.get("year").and_then(|o| o.to_string().parse::<u32>().ok()),
+            genre: table.get("genre").and_then(|o| Some(o.to_string())),
             tracks: tracks,
             disc_total: Some(1),
             tracks_per_disc: Some(vec![track_total]),
