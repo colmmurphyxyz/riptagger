@@ -20,7 +20,31 @@ pub struct TrackTags {
 
 impl fmt::Display for TrackTags {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {}, {:?}, {}, {:?})", self.album_name, self.artist_name, self.year, self.track_name, self.genre)
+        write!(f, "album_name: {}\n", self.album_name)
+        .and_then(|_|
+            write!(f, "artist_name: {}\n", self.artist_name)
+        )
+        .and_then(|_|
+            write!(f, "year: {}\n", self.year.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+        )
+        .and_then(|_|
+            write!(f, "track_name: {}\n", self.track_name)
+        )
+        .and_then(|_|
+            write!(f, "genre: {}\n", self.genre.clone().unwrap_or(String::from("N/A")))
+        )
+        .and_then(|_|
+            write!(f, "track_number: {}\n", self.track_number)
+        )
+        .and_then(|_|
+            write!(f, "track_total: {}\n", self.track_total)
+        )
+        .and_then(|_|
+            write!(f, "disc_number: {}\n", self.disc_number.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+        )
+        .and_then(|_|
+            write!(f, "disc_total: {}", self.disc_total.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+        )
     }
 }
 
