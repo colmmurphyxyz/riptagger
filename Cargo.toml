@@ -5,6 +5,6 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.39", features = ["derive"] }
-id3 = "1.16.3"
+metaflac = "0.2.8"
 once_cell = "1.21.3"
 toml = "0.8.22"
