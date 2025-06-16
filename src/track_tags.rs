@@ -3,7 +3,7 @@
 
 use std::fmt;
 
-use id3::{Tag, TagLike, Error, Version};
+use metaflac::{Tag, Error};
 
 #[derive(Debug)]
 pub struct TrackTags {
@@ -51,27 +51,27 @@ impl fmt::Display for TrackTags {
 pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Error> {
     let mut file = match Tag::read_from_path(track_path) {
         Ok(f) => f,
-        Err(e) => { return Err(e); }
+        Err(e) => { return Err(e) }
     };
 
-    file.set_album(&tags.album_name);
-    file.set_artist(&tags.artist_name);
-    file.set_album_artist(&tags.artist_name);
+    file.set_vorbis("ALBUM", vec![&tags.album_name]);
+    file.set_vorbis("ARTIST", vec![&tags.artist_name]);
+    file.set_vorbis("TITLE", vec![&tags.track_name]);
+    file.set_vorbis("TRACKNUMBER", vec![tags.track_number.to_string()]);
+    file.set_vorbis("TRACKTOTAL", vec![tags.track_total.to_string()]);
+
     if let Some(year) = tags.year {
-        file.set_year(year as i32)
+        file.set_vorbis("DATE", vec![year.to_string()]);
     }
-    file.set_title(&tags.track_name);
     if let Some(genre) = &tags.genre {
-        file.set_genre(genre);
+        file.set_vorbis("GENRE", vec![genre]);
     }
-    file.set_track(tags.track_number);
-    file.set_total_tracks(tags.track_total);
-    if let Some(disc_num) = tags.disc_number {
-        file.set_disc(disc_num);
+    if let Some(disc_num) = &tags.disc_number {
+        file.set_vorbis("DISCNUMBER", vec![disc_num.to_string()]);
     }
-    if let Some(disc_total) = tags.disc_total {
-        file.set_total_discs(disc_total);
+    if let Some(disc_total) = &tags.disc_total {
+        file.set_vorbis("TOTALDISCS", vec![disc_total.to_string()])
     }
-    file.write_to_path(track_path, Version::Id3v24)?;
-    Ok(())
+
+    file.save()
 }
