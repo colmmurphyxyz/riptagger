@@ -19,7 +19,27 @@ pub struct AlbumTags {
 
 impl fmt::Display for AlbumTags {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {}, {:?}, {:#?}, {:?})", self.album_name, self.artist_name, self.year, self.tracks, self.genre)
+        write!(f, "album_name: {}\n", self.album_name)
+        .and_then(|_|
+            write!(f, "artist_name: {}\n", self.artist_name)
+        )
+        .and_then(|_|
+            write!(f, "year: {}\n", self.year.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+        )
+        .and_then(|_|
+            write!(f, "genre: {}\n", self.genre.clone().unwrap_or(String::from("N/A")))
+        )
+        .and_then(|_|
+            write!(f, "tracks: {:?}\n", self.tracks)
+        )
+        .and_then(|_|
+            write!(f, "disc_total: {}\n", self.disc_total.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+        )
+        .and_then(|_|
+            write!(f, "tracks_per_disc: {:?}", self.tracks_per_disc.clone().unwrap_or(vec![]))
+        )
+        // write!(f, "({}, {}, {:?}, {:#?}, {:?})", self.album_name, self.artist_name, self.year, self.tracks, self.genre)
+            // .and_then(|_| write!(f, "done"))
     }
 }
 
