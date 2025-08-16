@@ -1,5 +1,5 @@
 {
-  description = "Rust development environment";
+  description = "riptagger flake";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -12,6 +12,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         # Read the file relative to the flake's root
         overrides = (builtins.fromTOML (builtins.readFile (self + "/rust-toolchain.toml")));
+        cargo = (builtins.fromTOML (builtins.readFile (self + "/Cargo.toml")));
         libPath = with pkgs; lib.makeLibraryPath [
           # load external libraries that you need in your rust project here
         ];
@@ -60,6 +61,25 @@
             ''-I"${pkgs.glib.dev}/include/glib-2.0"''
             ''-I${pkgs.glib.out}/lib/glib-2.0/include/''
           ];
+        };
+
+        packages.default = pkgs.rustPlatform.buildRustPackage {
+          pname = cargo.package.name;
+          version = cargo.package.version;
+
+          src = self;
+
+          cargoLock = {
+            lockFile = self + "/Cargo.lock";
+          };
+
+          nativeBuildInputs = [ pkgs.pkg-config ];
+          buildInputs = with pkgs; [
+            flac
+            taglib_1
+          ];
+
+          LIBCLANG_PATH = pkgs.lib.makeLibraryPath [ pkgs.llvmPackages_latest.libclang.lib ];
         };
       }
     );
