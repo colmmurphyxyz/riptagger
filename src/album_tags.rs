@@ -1,9 +1,11 @@
 // Copyright: (c) 2025, Colm Murphy
 // GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 use std::fmt;
+use std::path::Path;
 use toml::{Table, Value};
 
 use crate::config::ConfigError;
+use crate::fs_utils::get_current_directory;
 use crate::TrackTags;
 
 #[derive(Debug, Clone)]
@@ -12,6 +14,7 @@ pub struct AlbumTags {
     pub artist_name: String,
     pub year: Option<u32>,
     pub genre: Option<String>,
+    pub picture_path: Option<String>,
     pub tracks: Vec<String>,
     pub disc_total: Option<u32>,
     pub tracks_per_disc: Option<Vec<u32>>,
@@ -106,12 +109,23 @@ impl AlbumTags {
             }
         };
 
+        // picture path should be relative to the config file
+        let relative_picture_path = table.get("picture").and_then(|p| Some(p.as_str())).and_then(|p| p.to_owned());
+        let cwd = get_current_directory();
+        let pic_path = match cwd {
+            Err(_) => panic!("..."),
+            Ok(c) => c.as_path().join(Path::new(&relative_picture_path.unwrap()))
+        };
+        let pic_path_str = pic_path.to_str().and_then(|s| Some(s.to_string()));
+
+
         // FIXME: this is not very safe
         Ok(AlbumTags {
             artist_name: table.get("artist").unwrap().as_str().unwrap().to_string(),
             album_name: table.get("album").unwrap().as_str().unwrap().to_string(),
             year: table.get("year").and_then(|o| o.to_string().parse::<u32>().ok()),
             genre: table.get("genre").and_then(|o| Some(o.to_string())),
+            picture_path: pic_path_str,
             tracks: tracks,
             disc_total: disc_total,
             tracks_per_disc: Some(tracks_per_disc),
@@ -144,6 +158,7 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
             year: album.year.clone(),
             track_name: album.tracks[index].clone(),
             genre: album.genre.clone(),
+            picture_path: album.picture_path.clone(),
             track_number: (index + 1) as u32,
             track_total: track_total as u32,
             disc_number: Some(disc_num),

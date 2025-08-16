@@ -3,7 +3,8 @@
 
 use std::ffi::OsStr;
 use std::fs::{DirEntry, read_dir, rename};
-use std::path::Path;
+use std::io;
+use std::path::{Path, PathBuf};
 use std::collections::HashSet;
 
 use once_cell::sync::Lazy;
@@ -76,4 +77,8 @@ pub fn rename_audio_file(file_path: &str, track_number: u32, track_name: &str) -
         Ok(_) => Ok(new_name),
         Err(e) => Err(e),
     }
+}
+
+pub fn get_current_directory() -> io::Result<PathBuf> {
+    std::env::current_dir()
 }

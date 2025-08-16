@@ -2,8 +2,10 @@
 // GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 use std::fmt;
+use std::fs::read;
 
 use metaflac::{Tag, Error};
+use metaflac::block::PictureType::CoverFront;
 
 #[derive(Debug)]
 pub struct TrackTags {
@@ -12,6 +14,7 @@ pub struct TrackTags {
     pub year: Option<u32>,
     pub track_name: String,
     pub genre: Option<String>,
+    pub picture_path: Option<String>,
     pub track_number: u32,
     pub track_total: u32,
     pub disc_number: Option<u32>,
@@ -71,6 +74,11 @@ pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Er
     }
     if let Some(disc_total) = &tags.disc_total {
         file.set_vorbis("TOTALDISCS", vec![disc_total.to_string()])
+    }
+
+    if let Some(cover_path) = &tags.picture_path {
+        let pic = read(cover_path).unwrap();
+        file.add_picture("image/jpeg", CoverFront, pic)
     }
 
     file.save()
