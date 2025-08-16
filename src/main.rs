@@ -1,8 +1,6 @@
 // Copyright: (c) 2025, Colm Murphy
 // GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-extern crate taglib;
-
 pub mod config;
 pub mod track_tags;
 pub mod album_tags;
@@ -38,8 +36,8 @@ fn main() {
 
     let album_tags: AlbumTags = match load_config_from_file(&args.config_path) {
         Ok(cfg) => cfg,
-        _ => {
-            panic!("Could not read config file '{0}'.", &args.config_path)
+        Err(e) => {
+            panic!("Could not read config file '{0}'. Error: '{1}'", &args.config_path, e)
         }
     };
 
@@ -56,7 +54,9 @@ fn main() {
     tracks.sort();
     let track_tags = to_track_tags(album_tags);
 
-    assert!(track_tags.len() == tracks.len());
+    if track_tags.len() != tracks.len() {
+        panic!("Error: Configuration defines {} tracks, but {} tracks found in directory {}\n({:?})", track_tags.len(), tracks.len(), &args.album_path, tracks);
+    }
 
     for i in 0..tracks.len() {
         let track_path = tracks[i].as_str();
