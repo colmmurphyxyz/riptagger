@@ -78,22 +78,8 @@ fn get_string_value(table: &Table, key: &str) -> Option<String> {
 
 impl AlbumTags {
     pub fn from_toml(table: Table) -> Result<Self, ConfigError> {
-        if !table.contains_key("artist") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'artist'.")));
-        }
-        if !table.contains_key("album") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'album'.")));
-        }
-        if !table.contains_key("year") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'year'.")));
-        } else {
-            let n = table.get("year").unwrap().to_string().parse::<u32>();
-            if n.is_err() {
-                return Err(ConfigError::TypeError(String::from("Expected numerical value for key 'year'.")));
-            }
-        }
-        if !table.contains_key("genre") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'genre'.")));
+        if !table.contains_key("tracks") {
+            return Err(ConfigError::MissingKey(String::from("Missing key 'tracks'.")))
         }
 
         let tracks = match get_string_array(&table, "tracks") {
