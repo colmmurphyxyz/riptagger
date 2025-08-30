@@ -5,7 +5,7 @@ pub mod config;
 pub mod track_tags;
 pub mod album_tags;
 pub mod fs_utils;
-
+pub mod tests;
 use clap::Parser;
 
 use config::load_config_from_file;
