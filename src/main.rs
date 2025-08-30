@@ -74,7 +74,8 @@ fn main() {
             continue;
         }
         // rename file to 'track number - track name'
-        match rename_audio_file(track_path, tags.track_number, &tags.track_name) {
+        let track_num = tags.track_number.unwrap_or(0);
+        match rename_audio_file(track_path, track_num, &tags.track_name) {
             Ok(new_name) => {
                 println!("Renamed '{}' to '{}'", track_path, new_name)
             }

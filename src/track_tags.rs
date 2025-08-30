@@ -9,44 +9,44 @@ use metaflac::block::PictureType::CoverFront;
 
 #[derive(Debug)]
 pub struct TrackTags {
-    pub album_name: String,
-    pub artist_name: String,
+    pub album_name: Option<String>,
+    pub artist_name: Option<String>,
     pub year: Option<u32>,
     pub track_name: String,
     pub genre: Option<String>,
     pub picture_path: Option<String>,
-    pub track_number: u32,
-    pub track_total: u32,
+    pub track_number: Option<u32>,
+    pub track_total: Option<u32>,
     pub disc_number: Option<u32>,
     pub disc_total: Option<u32>,
 }
 
 impl fmt::Display for TrackTags {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "album_name: {}\n", self.album_name)
+        write!(f, "album_name: {:?}\n", self.album_name)
         .and_then(|_|
-            write!(f, "artist_name: {}\n", self.artist_name)
+            write!(f, "artist_name: {:?}\n", self.artist_name)
         )
         .and_then(|_|
-            write!(f, "year: {}\n", self.year.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+            write!(f, "year: {:?}\n", self.year.map(|s| s.to_string()))
         )
         .and_then(|_|
-            write!(f, "track_name: {}\n", self.track_name)
+            write!(f, "track_name: {:?}\n", self.track_name)
         )
         .and_then(|_|
-            write!(f, "genre: {}\n", self.genre.clone().unwrap_or(String::from("N/A")))
+            write!(f, "genre: {:?}\n", self.genre)
         )
         .and_then(|_|
-            write!(f, "track_number: {}\n", self.track_number)
+            write!(f, "track_number: {:?}\n", self.track_number)
         )
         .and_then(|_|
-            write!(f, "track_total: {}\n", self.track_total)
+            write!(f, "track_total: {:?}\n", self.track_total)
         )
         .and_then(|_|
-            write!(f, "disc_number: {}\n", self.disc_number.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+            write!(f, "disc_number: {:?}\n", self.disc_number.map(|x| x.to_string()))
         )
         .and_then(|_|
-            write!(f, "disc_total: {}", self.disc_total.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+            write!(f, "disc_total: {:?}", self.disc_total.map(|x| x.to_string()))
         )
     }
 }
@@ -57,21 +57,36 @@ pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Er
         Err(e) => { return Err(e) }
     };
 
-    file.set_vorbis("ALBUM", vec![&tags.album_name]);
-    file.set_vorbis("ARTIST", vec![&tags.artist_name]);
+    if let Some(album_name) = &tags.album_name {
+        file.set_vorbis("ALBUM", vec![album_name]);
+    }
+
+    if let Some(artist_name) = &tags.artist_name {
+        file.set_vorbis("ARTIST", vec![artist_name]);
+    }
+
     file.set_vorbis("TITLE", vec![&tags.track_name]);
-    file.set_vorbis("TRACKNUMBER", vec![tags.track_number.to_string()]);
-    file.set_vorbis("TRACKTOTAL", vec![tags.track_total.to_string()]);
+
+    if let Some(track_number) = &tags.track_number {
+        file.set_vorbis("TRACKNUMBER", vec![track_number.to_string()]);
+    }
+
+    if let Some(track_total) = &tags.track_total {
+        file.set_vorbis("TRACKTOTAL", vec![track_total.to_string()]);
+    }
 
     if let Some(year) = tags.year {
         file.set_vorbis("DATE", vec![year.to_string()]);
     }
+
     if let Some(genre) = &tags.genre {
         file.set_vorbis("GENRE", vec![genre]);
     }
+
     if let Some(disc_num) = &tags.disc_number {
         file.set_vorbis("DISCNUMBER", vec![disc_num.to_string()]);
     }
+
     if let Some(disc_total) = &tags.disc_total {
         file.set_vorbis("TOTALDISCS", vec![disc_total.to_string()])
     }

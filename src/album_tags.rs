@@ -10,8 +10,8 @@ use crate::TrackTags;
 
 #[derive(Debug, Clone)]
 pub struct AlbumTags {
-    pub album_name: String,
-    pub artist_name: String,
+    pub album_name: Option<String>,
+    pub artist_name: Option<String>,
     pub year: Option<u32>,
     pub genre: Option<String>,
     pub picture_path: Option<String>,
@@ -22,27 +22,28 @@ pub struct AlbumTags {
 
 impl fmt::Display for AlbumTags {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "album_name: {}\n", self.album_name)
+        write!(f, "album_name: {:?}\n", self.album_name)
         .and_then(|_|
-            write!(f, "artist_name: {}\n", self.artist_name)
+            write!(f, "artist_name: {:?}\n", self.artist_name)
         )
         .and_then(|_|
-            write!(f, "year: {}\n", self.year.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+            write!(f, "year: {:?}\n", self.year)
         )
         .and_then(|_|
-            write!(f, "genre: {}\n", self.genre.clone().unwrap_or(String::from("N/A")))
+            write!(f, "genre: {:?}\n", self.genre)
         )
         .and_then(|_|
             write!(f, "tracks: {:?}\n", self.tracks)
         )
         .and_then(|_|
-            write!(f, "disc_total: {}\n", self.disc_total.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+            write!(f, "disc_total: {:?}\n", self.disc_total)
         )
         .and_then(|_|
-            write!(f, "tracks_per_disc: {:?}", self.tracks_per_disc.clone().unwrap_or(vec![]))
+            write!(f, "tracks_per_disc: {:?}", self.tracks_per_disc)
         )
-        // write!(f, "({}, {}, {:?}, {:#?}, {:?})", self.album_name, self.artist_name, self.year, self.tracks, self.genre)
-            // .and_then(|_| write!(f, "done"))
+        .and_then( |_|
+            write!(f, "picture_path: {:?}", self.picture_path)
+        )
     }
 }
 
@@ -67,24 +68,18 @@ fn get_u32_array<T>(arr: &Vec<Value>) -> Vec<u32> {
     xs
 }
 
+fn get_string_value(table: &Table, key: &str) -> Option<String> {
+    let val = table.get(key);
+    match val {
+        None => None,
+        Some(s) => s.as_str().map(|s| s.to_string())
+    }
+}
+
 impl AlbumTags {
     pub fn from_toml(table: Table) -> Result<Self, ConfigError> {
-        if !table.contains_key("artist") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'artist'.")));
-        }
-        if !table.contains_key("album") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'album'.")));
-        }
-        if !table.contains_key("year") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'year'.")));
-        } else {
-            let n = table.get("year").unwrap().to_string().parse::<u32>();
-            if n.is_err() {
-                return Err(ConfigError::TypeError(String::from("Expected numerical value for key 'year'.")));
-            }
-        }
-        if !table.contains_key("genre") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'genre'.")));
+        if !table.contains_key("tracks") {
+            return Err(ConfigError::MissingKey(String::from("Missing key 'tracks'.")))
         }
 
         let tracks = match get_string_array(&table, "tracks") {
@@ -118,13 +113,12 @@ impl AlbumTags {
         };
         let pic_path_str = pic_path.to_str().and_then(|s| Some(s.to_string()));
 
-
         // FIXME: this is not very safe
         Ok(AlbumTags {
-            artist_name: table.get("artist").unwrap().as_str().unwrap().to_string(),
-            album_name: table.get("album").unwrap().as_str().unwrap().to_string(),
+            artist_name: get_string_value(&table, "artist"),
+            album_name: get_string_value(&table, "album"),
             year: table.get("year").and_then(|o| o.to_string().parse::<u32>().ok()),
-            genre: table.get("genre").and_then(|o| Some(o.to_string())),
+            genre: get_string_value(&table, "genre"),
             picture_path: pic_path_str,
             tracks: tracks,
             disc_total: disc_total,
@@ -159,8 +153,8 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
             track_name: album.tracks[index].clone(),
             genre: album.genre.clone(),
             picture_path: album.picture_path.clone(),
-            track_number: (index + 1) as u32,
-            track_total: track_total as u32,
+            track_number: Some((index + 1) as u32),
+            track_total: Some(track_total as u32),
             disc_number: Some(disc_num),
             disc_total: album.disc_total,
         });
