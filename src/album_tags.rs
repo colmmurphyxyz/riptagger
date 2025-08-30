@@ -72,7 +72,7 @@ fn get_string_value(table: &Table, key: &str) -> Option<String> {
     let val = table.get(key);
     match val {
         None => None,
-        Some(s) => s.as_str().and_then(|s| Some(s.to_string()))
+        Some(s) => s.as_str().map(|s| s.to_string())
     }
 }
 

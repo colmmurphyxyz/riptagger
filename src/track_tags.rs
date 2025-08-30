@@ -28,7 +28,7 @@ impl fmt::Display for TrackTags {
             write!(f, "artist_name: {:?}\n", self.artist_name)
         )
         .and_then(|_|
-            write!(f, "year: {:?}\n", self.year.and_then(|x| Some(x.to_string())))
+            write!(f, "year: {:?}\n", self.year.map(|s| s.to_string()))
         )
         .and_then(|_|
             write!(f, "track_name: {:?}\n", self.track_name)
@@ -43,10 +43,10 @@ impl fmt::Display for TrackTags {
             write!(f, "track_total: {:?}\n", self.track_total)
         )
         .and_then(|_|
-            write!(f, "disc_number: {:?}\n", self.disc_number.and_then(|x| Some(x.to_string())))
+            write!(f, "disc_number: {:?}\n", self.disc_number.map(|x| x.to_string()))
         )
         .and_then(|_|
-            write!(f, "disc_total: {:?}", self.disc_total.and_then(|x| Some(x.to_string())))
+            write!(f, "disc_total: {:?}", self.disc_total.map(|x| x.to_string()))
         )
     }
 }
