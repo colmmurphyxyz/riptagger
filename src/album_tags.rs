@@ -68,6 +68,14 @@ fn get_u32_array<T>(arr: &Vec<Value>) -> Vec<u32> {
     xs
 }
 
+fn get_string_value(table: &Table, key: &str) -> Option<String> {
+    let val = table.get(key);
+    match val {
+        None => None,
+        Some(s) => s.as_str().and_then(|s| Some(s.to_string()))
+    }
+}
+
 impl AlbumTags {
     pub fn from_toml(table: Table) -> Result<Self, ConfigError> {
         if !table.contains_key("artist") {
@@ -119,13 +127,12 @@ impl AlbumTags {
         };
         let pic_path_str = pic_path.to_str().and_then(|s| Some(s.to_string()));
 
-
         // FIXME: this is not very safe
         Ok(AlbumTags {
-            artist_name: table.get("artist").and_then(|artist| Some(artist.to_string())),
-            album_name: table.get("album").and_then(|name| Some(name.to_string())),
+            artist_name: get_string_value(&table, "artist"),
+            album_name: get_string_value(&table, "album"),
             year: table.get("year").and_then(|o| o.to_string().parse::<u32>().ok()),
-            genre: table.get("genre").and_then(|o| Some(o.to_string())),
+            genre: get_string_value(&table, "genre"),
             picture_path: pic_path_str,
             tracks: tracks,
             disc_total: disc_total,
