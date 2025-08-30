@@ -50,7 +50,7 @@ static DISALLOWED_CHARS: Lazy<HashSet<char>> = Lazy::new(|| {
     ].iter().cloned().collect()
 });
 
-fn normalize(s: &str) -> String {
+pub fn normalize(s: &str) -> String {
     s.to_string()
         .chars()
         .filter(|c| !DISALLOWED_CHARS.contains(c)).collect::<String>()
