@@ -11,7 +11,7 @@ use crate::TrackTags;
 #[derive(Debug, Clone)]
 pub struct AlbumTags {
     pub album_name: Option<String>,
-    pub artist_name: String,
+    pub artist_name: Option<String>,
     pub year: Option<u32>,
     pub genre: Option<String>,
     pub picture_path: Option<String>,
@@ -122,7 +122,7 @@ impl AlbumTags {
 
         // FIXME: this is not very safe
         Ok(AlbumTags {
-            artist_name: table.get("artist").unwrap().as_str().unwrap().to_string(),
+            artist_name: table.get("artist").and_then(|artist| Some(artist.to_string())),
             album_name: table.get("album").and_then(|name| Some(name.to_string())),
             year: table.get("year").and_then(|o| o.to_string().parse::<u32>().ok()),
             genre: table.get("genre").and_then(|o| Some(o.to_string())),
@@ -160,8 +160,8 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
             track_name: album.tracks[index].clone(),
             genre: album.genre.clone(),
             picture_path: album.picture_path.clone(),
-            track_number: (index + 1) as u32,
-            track_total: track_total as u32,
+            track_number: Some((index + 1) as u32),
+            track_total: Some(track_total as u32),
             disc_number: Some(disc_num),
             disc_total: album.disc_total,
         });
