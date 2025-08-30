@@ -10,7 +10,7 @@ use crate::TrackTags;
 
 #[derive(Debug, Clone)]
 pub struct AlbumTags {
-    pub album_name: String,
+    pub album_name: Option<String>,
     pub artist_name: String,
     pub year: Option<u32>,
     pub genre: Option<String>,
@@ -22,27 +22,28 @@ pub struct AlbumTags {
 
 impl fmt::Display for AlbumTags {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "album_name: {}\n", self.album_name)
+        write!(f, "album_name: {:?}\n", self.album_name)
         .and_then(|_|
-            write!(f, "artist_name: {}\n", self.artist_name)
+            write!(f, "artist_name: {:?}\n", self.artist_name)
         )
         .and_then(|_|
-            write!(f, "year: {}\n", self.year.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+            write!(f, "year: {:?}\n", self.year)
         )
         .and_then(|_|
-            write!(f, "genre: {}\n", self.genre.clone().unwrap_or(String::from("N/A")))
+            write!(f, "genre: {:?}\n", self.genre)
         )
         .and_then(|_|
             write!(f, "tracks: {:?}\n", self.tracks)
         )
         .and_then(|_|
-            write!(f, "disc_total: {}\n", self.disc_total.and_then(|x| Some(x.to_string())).unwrap_or(String::from("N/A")))
+            write!(f, "disc_total: {:?}\n", self.disc_total)
         )
         .and_then(|_|
-            write!(f, "tracks_per_disc: {:?}", self.tracks_per_disc.clone().unwrap_or(vec![]))
+            write!(f, "tracks_per_disc: {:?}", self.tracks_per_disc)
         )
-        // write!(f, "({}, {}, {:?}, {:#?}, {:?})", self.album_name, self.artist_name, self.year, self.tracks, self.genre)
-            // .and_then(|_| write!(f, "done"))
+        .and_then( |_|
+            write!(f, "picture_path: {:?}", self.picture_path)
+        )
     }
 }
 
@@ -122,7 +123,7 @@ impl AlbumTags {
         // FIXME: this is not very safe
         Ok(AlbumTags {
             artist_name: table.get("artist").unwrap().as_str().unwrap().to_string(),
-            album_name: table.get("album").unwrap().as_str().unwrap().to_string(),
+            album_name: table.get("album").and_then(|name| Some(name.to_string())),
             year: table.get("year").and_then(|o| o.to_string().parse::<u32>().ok()),
             genre: table.get("genre").and_then(|o| Some(o.to_string())),
             picture_path: pic_path_str,
