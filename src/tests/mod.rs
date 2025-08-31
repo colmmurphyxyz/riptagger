@@ -8,3 +8,6 @@ pub mod tests {
 
 #[cfg(test)]
 pub mod fs_utils_tests;
+
+#[cfg(test)]
+pub mod config_tests;

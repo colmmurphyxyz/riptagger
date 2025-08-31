@@ -56,7 +56,7 @@ fn get_string_array(table: &Table, key: &str) -> Result<Vec<String>, ConfigError
 
             strings.map_err(Into::into)
         }
-        _ => Err(ConfigError::MissingKey(String::from(format!("Missing key '{}'", key))))
+        _ => Err(ConfigError::MissingKey(String::from(key)))
     }
 }
 
@@ -79,7 +79,7 @@ fn get_string_value(table: &Table, key: &str) -> Option<String> {
 impl AlbumTags {
     pub fn from_toml(table: Table) -> Result<Self, ConfigError> {
         if !table.contains_key("tracks") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'tracks'.")))
+            return Err(ConfigError::MissingKey(String::from("tracks")))
         }
 
         let tracks = match get_string_array(&table, "tracks") {
