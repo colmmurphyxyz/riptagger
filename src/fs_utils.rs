@@ -50,7 +50,7 @@ static DISALLOWED_CHARS: Lazy<HashSet<char>> = Lazy::new(|| {
     ].iter().cloned().collect()
 });
 
-fn normalize(s: &str) -> String {
+pub fn normalize(s: &str) -> String {
     s.to_string()
         .chars()
         .filter(|c| !DISALLOWED_CHARS.contains(c)).collect::<String>()
@@ -63,7 +63,7 @@ pub fn rename_audio_file(file_path: &str, track_number: u32, track_name: &str) -
         .extension()
         .and_then(|osstr| osstr.to_str())
         .and_then(|s| format!(".{}", s).into());
-    // zero-pad file name to at least 2 digits
+    // zero-pad track number to at least 2 digits
     // there may be some *long* album out there with >99 tracks.
     // I only plan on using this for tagging CD rips, unlikely this will ever be a problem.
     let new_name = format!(

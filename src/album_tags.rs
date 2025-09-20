@@ -56,7 +56,7 @@ fn get_string_array(table: &Table, key: &str) -> Result<Vec<String>, ConfigError
 
             strings.map_err(Into::into)
         }
-        _ => Err(ConfigError::MissingKey(String::from(format!("Missing key '{}'", key))))
+        _ => Err(ConfigError::MissingKey(String::from(key)))
     }
 }
 
@@ -79,7 +79,7 @@ fn get_string_value(table: &Table, key: &str) -> Option<String> {
 impl AlbumTags {
     pub fn from_toml(table: Table) -> Result<Self, ConfigError> {
         if !table.contains_key("tracks") {
-            return Err(ConfigError::MissingKey(String::from("Missing key 'tracks'.")))
+            return Err(ConfigError::MissingKey(String::from("tracks")))
         }
 
         let tracks = match get_string_array(&table, "tracks") {
@@ -104,14 +104,14 @@ impl AlbumTags {
             }
         };
 
+        let mut pic_path_str: Option<String> = None;
         // picture path should be relative to the config file
-        let relative_picture_path = table.get("picture").and_then(|p| Some(p.as_str())).and_then(|p| p.to_owned());
-        let cwd = get_current_directory();
-        let pic_path = match cwd {
-            Err(_) => panic!("..."),
-            Ok(c) => c.as_path().join(Path::new(&relative_picture_path.unwrap()))
-        };
-        let pic_path_str = pic_path.to_str().and_then(|s| Some(s.to_string()));
+        if let Some(relative_picture_path) = table.get("picture").and_then(|p| Some(p.as_str())).and_then(|p| p.to_owned()) {
+            let cwd = get_current_directory();
+            if let Ok(pic_path_root) = cwd {
+                pic_path_str = pic_path_root.as_path().join(Path::new(&relative_picture_path)).to_str().and_then(|s| Some(s.to_string()));
+            }
+        }
 
         // FIXME: this is not very safe
         Ok(AlbumTags {

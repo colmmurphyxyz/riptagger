@@ -1,0 +1,8 @@
+album = "Romance"
+artist = "Fontaines D.C"
+year = 2024
+tracks = ["Romance", "Starburster", "Here's The Thing", "Desire", "In The Modern World", "Bug", "Motorcycle Boy", "Sundowner", "Horseness Is The Whatness", "Death Kink", "Favourite"]
+genre = "Indie"
+picture = "scratch/rom.jpg"
+disc_total = 1
+tracks_per_disc = [11]
