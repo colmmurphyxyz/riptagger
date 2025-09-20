@@ -104,14 +104,16 @@ impl AlbumTags {
             }
         };
 
+        let mut pic_path_str: Option<String> = None;
         // picture path should be relative to the config file
-        let relative_picture_path = table.get("picture").and_then(|p| Some(p.as_str())).and_then(|p| p.to_owned());
-        let cwd = get_current_directory();
-        let pic_path = match cwd {
-            Err(_) => panic!("..."),
-            Ok(c) => c.as_path().join(Path::new(&relative_picture_path.unwrap()))
-        };
-        let pic_path_str = pic_path.to_str().and_then(|s| Some(s.to_string()));
+        if let Some(relative_picture_path) = table.get("picture").and_then(|p| Some(p.as_str())).and_then(|p| p.to_owned()) {
+            let cwd = get_current_directory();
+            let pic_path = match cwd {
+                Err(_) => panic!("..."),
+                Ok(c) => c.as_path().join(Path::new(&relative_picture_path))
+            };
+            pic_path_str = pic_path.to_str().and_then(|s| Some(s.to_string()));
+        }
 
         // FIXME: this is not very safe
         Ok(AlbumTags {
