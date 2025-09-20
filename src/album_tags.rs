@@ -13,7 +13,7 @@ pub struct AlbumTags {
     pub album_name: Option<String>,
     pub artist_name: Option<String>,
     pub year: Option<u32>,
-    pub genre: Option<String>,
+    pub genre: Vec<String>,
     pub picture_path: Option<String>,
     pub tracks: Vec<String>,
     pub disc_total: Option<u32>,
@@ -76,6 +76,24 @@ fn get_string_value(table: &Table, key: &str) -> Option<String> {
     }
 }
 
+fn get_single_or_array_string(table: &Table, key: &str) -> Result<Vec<String>, ConfigError> {
+    match table.get(key) {
+        Some(Value::String(s)) => Ok(vec![s.to_string()]),
+        Some(Value::Array(arr)) => {
+            if !arr.iter().all(|val| val.is_str()) {
+                return Err(ConfigError::TypeError(format!("value for '{}' should be a string or array of strings", key)));
+            } else {
+                let strings: Vec<String> = arr.iter()
+                    .map(|v| v.as_str().unwrap().to_string())
+                    .collect();
+                return Ok(strings);
+            }
+
+        }
+        _ => Err(ConfigError::TypeError(format!("value for '{}' should be a string or array of strings", key)))
+    }
+}
+
 impl AlbumTags {
     pub fn from_toml(table: Table) -> Result<Self, ConfigError> {
         if !table.contains_key("tracks") {
@@ -110,7 +128,7 @@ impl AlbumTags {
             artist_name: get_string_value(&table, "artist"),
             album_name: get_string_value(&table, "album"),
             year: table.get("year").and_then(|o| o.to_string().parse::<u32>().ok()),
-            genre: get_string_value(&table, "genre"),
+            genre: get_single_or_array_string(&table, "genre").unwrap_or(vec![]),
             picture_path: pic_path_str,
             tracks: tracks,
             disc_total: disc_total,

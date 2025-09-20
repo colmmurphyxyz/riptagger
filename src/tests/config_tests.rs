@@ -10,7 +10,7 @@ fn test_valid_config() {
     assert_eq!(tags.album_name, Some("Romance".to_string()));
     assert_eq!(tags.artist_name, Some("Fontaines D.C".to_string()));
     assert_eq!(tags.year, Some(2024));
-    assert_eq!(tags.genre, Some("Indie".to_string()));
+    assert_eq!(tags.genre, vec!["Indie".to_string()]);
     let tracks = tags.tracks;
     assert_eq!(tracks.len(), 11);
     assert_eq!(

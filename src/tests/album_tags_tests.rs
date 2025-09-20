@@ -20,7 +20,7 @@ fn test_string_value() -> Result<(), Box<dyn Error>> {
     let tags = AlbumTags::from_toml(table)?;
     assert_eq!(tags.album_name, Some("Plantgazer".to_string()));
     assert_eq!(tags.artist_name, Some("Show Me a Dinosaur".to_string()));
-    assert_eq!(tags.genre, Some("\"Black Metal\" 'blackgaze\'".to_string()));
+    assert_eq!(tags.genre, vec!["\"Black Metal\" 'blackgaze'".to_string()]);
 
     Ok(())
 }
@@ -106,7 +106,7 @@ fn test_to_track_tags() -> Result<(), Box<dyn Error>> {
     assert_eq!(track_tags[0].album_name, Some("Plantgazer".to_string()));
     assert_eq!(track_tags[0].artist_name, Some("Show Me a Dinosaur".to_string()));
     assert_eq!(track_tags[0].year, Some(2020));
-    assert_eq!(track_tags[0].genre, Some("Blackgaze".to_string()));
+    assert_eq!(track_tags[0].genre, vec!["Blackgaze".to_string()]);
     assert_eq!(track_tags[0].track_name, "Track 1".to_string());
     assert_eq!(track_tags[0].track_number, Some(1));
     assert_eq!(track_tags[0].disc_number, Some(1));

@@ -13,7 +13,7 @@ pub struct TrackTags {
     pub artist_name: Option<String>,
     pub year: Option<u32>,
     pub track_name: String,
-    pub genre: Option<String>,
+    pub genre: Vec<String>,
     pub picture_path: Option<String>,
     pub track_number: Option<u32>,
     pub track_total: Option<u32>,
@@ -79,8 +79,9 @@ pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Er
         file.set_vorbis("DATE", vec![year.to_string()]);
     }
 
-    if let Some(genre) = &tags.genre {
-        file.set_vorbis("GENRE", vec![genre]);
+    if !&tags.genre.is_empty() {
+        let genres: Vec<String> = tags.genre.iter().map(|s| s.to_string()).collect();
+        file.set_vorbis("GENRE", genres);
     }
 
     if let Some(disc_num) = &tags.disc_number {
