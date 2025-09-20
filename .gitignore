@@ -2,7 +2,6 @@
 
 # ignore test files
 /scratch
-*.flac
 
 # nix
 result
