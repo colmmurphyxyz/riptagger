@@ -7,7 +7,11 @@ pub mod tests {
 }
 
 #[cfg(test)]
-pub mod fs_utils_tests;
+pub mod album_tags_tests;
 
 #[cfg(test)]
 pub mod config_tests;
+
+#[cfg(test)]
+pub mod fs_utils_tests;
+
