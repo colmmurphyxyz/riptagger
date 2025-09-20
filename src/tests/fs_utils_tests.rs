@@ -34,17 +34,17 @@ fn test_get_audio_files_in_directory() {
 
 #[test]
 fn test_normalize_file_name() {
-    assert!(fs_utils::normalize("normal file name.mp3") == "normal file name.mp3");
-    assert!(fs_utils::normalize("file'name.mp3") == "filename.mp3");
-    assert!(fs_utils::normalize("file\"name.mp3") == "filename.mp3");
-    assert!(fs_utils::normalize("file/name.mp3") == "filename.mp3");
-    assert!(fs_utils::normalize("file\\name.mp3") == "filename.mp3");
-    assert!(fs_utils::normalize("file>name.mp3") == "filename.mp3");
-    assert!(fs_utils::normalize("file<name.mp3") == "filename.mp3");
-    assert!(fs_utils::normalize("file:name.mp3") == "filename.mp3");
-    assert!(fs_utils::normalize("file|name.mp3") == "filename.mp3");
-    assert!(fs_utils::normalize("file*name.mp3") == "filename.mp3");
-    assert!(fs_utils::normalize("file?name.mp3") == "filename.mp3");
+    assert_eq!(fs_utils::normalize("normal file name.mp3"),  "normal file name.mp3");
+    assert_eq!(fs_utils::normalize("file'name.mp3"),  "filename.mp3");
+    assert_eq!(fs_utils::normalize("file\"name.mp3"),  "filename.mp3");
+    assert_eq!(fs_utils::normalize("file/name.mp3"),  "filename.mp3");
+    assert_eq!(fs_utils::normalize("file\\name.mp3"),  "filename.mp3");
+    assert_eq!(fs_utils::normalize("file>name.mp3"),  "filename.mp3");
+    assert_eq!(fs_utils::normalize("file<name.mp3"),  "filename.mp3");
+    assert_eq!(fs_utils::normalize("file:name.mp3"),  "filename.mp3");
+    assert_eq!(fs_utils::normalize("file|name.mp3"),  "filename.mp3");
+    assert_eq!(fs_utils::normalize("file*name.mp3"),  "filename.mp3");
+    assert_eq!(fs_utils::normalize("file?name.mp3"),  "filename.mp3");
 }
 
 #[test]
