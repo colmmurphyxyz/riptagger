@@ -1,3 +1,5 @@
+// Copyright: (c) 2025, Colm Murphy
+// GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 use crate::config::{ConfigError, load_config_from_file};
 
 #[test]
