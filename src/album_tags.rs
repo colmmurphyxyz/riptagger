@@ -87,21 +87,13 @@ impl AlbumTags {
             Err(e) => return Err(e)
         };
 
-        let track_total = tracks.len() as u32;
-
         let disc_total = match table.get("disc_total") {
             Some(x) => x.to_string().parse::<u32>().ok(),
-            None => {
-                println!("Missing key 'disc_total'");
-                Some(1)
-            }
+            _ => None
         };
-        let tracks_per_disc = match table.get("tracks_per_disc") {
-            Some(Value::Array(x)) => get_u32_array::<u32>(x),
-            _ => {
-                println!("Missing array key: 'tracks_per_disc'");
-                vec![track_total]
-            }
+        let tracks_per_disc: Option<Vec<u32>> = match table.get("tracks_per_disc") {
+            Some(Value::Array(x)) => Some(get_u32_array::<u32>(x)),
+            _ => None
         };
 
         let mut pic_path_str: Option<String> = None;
@@ -122,7 +114,7 @@ impl AlbumTags {
             picture_path: pic_path_str,
             tracks: tracks,
             disc_total: disc_total,
-            tracks_per_disc: Some(tracks_per_disc),
+            tracks_per_disc: tracks_per_disc,
         })
     }
 }
@@ -142,10 +134,10 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
     let mut index = 0;
     let track_total = album.tracks.len();
     while index < track_total {
-        let mut disc_num = 1;
-        if let Some(ref tpd) = album.tracks_per_disc {
-            disc_num = get_disc_number(&tpd, index as u32);   
-        }
+        let disc_num = match &album.tracks_per_disc {
+            Some(tpd) => Some(get_disc_number(&tpd, index as u32)),
+            None => None
+        };
         tags.push(TrackTags {
             album_name: album.album_name.clone(),
             artist_name: album.artist_name.clone(),
@@ -155,7 +147,7 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
             picture_path: album.picture_path.clone(),
             track_number: Some((index + 1) as u32),
             track_total: Some(track_total as u32),
-            disc_number: Some(disc_num),
+            disc_number: disc_num,
             disc_total: album.disc_total,
         });
 

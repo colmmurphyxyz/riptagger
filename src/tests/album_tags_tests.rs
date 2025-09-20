@@ -2,7 +2,7 @@ use std::error::Error;
 use toml::Table;
 
 use crate::config::ConfigError;
-use crate::album_tags::{AlbumTags, to_track_tags};
+use crate::album_tags::{to_track_tags, AlbumTags};
 
 
 #[test]
@@ -117,6 +117,27 @@ fn test_to_track_tags() -> Result<(), Box<dyn Error>> {
     assert_eq!(track_tags[2].track_name, "Track 3".to_string());
     assert_eq!(track_tags[2].track_number, Some(3));
     assert_eq!(track_tags[2].disc_number, Some(2));
+
+    Ok(())
+}
+
+#[test]
+fn test_to_track_tags_no_disc_info() -> Result<(), Box<dyn Error>> {
+    let table: Table = toml::from_str(r#"
+        album = "Solo Album"
+        artist = "Lone Artist"
+        year = 2021
+        tracks = ["first", "second"]
+
+    "#)?;
+
+    let album_tags: AlbumTags = AlbumTags::from_toml(table)?;
+    let track_tags = to_track_tags(album_tags);
+    assert_eq!(track_tags.len(), 2);
+    assert_eq!(track_tags[0].disc_number, None);
+    assert_eq!(track_tags[0].disc_total, None);
+    assert_eq!(track_tags[1].disc_number, None);
+    assert_eq!(track_tags[1].disc_total, None);
 
     Ok(())
 }
