@@ -2,6 +2,7 @@
 // GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 pub mod config;
+pub mod toml_helpers;
 pub mod track_tags;
 pub mod album_tags;
 pub mod fs_utils;
