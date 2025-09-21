@@ -4,6 +4,7 @@ use std::fmt;
 use std::path::Path;
 use toml::{Table, Value};
 
+use crate::toml_helpers::{get_i64_array, get_i64_value, get_string_array, get_single_or_array_string};
 use crate::config::ConfigError;
 use crate::fs_utils::get_current_directory;
 use crate::TrackTags;
@@ -47,60 +48,13 @@ impl fmt::Display for AlbumTags {
     }
 }
 
-fn get_string_array(table: &Table, key: &str) -> Result<Vec<String>, ConfigError> {
-    match table.get(key) {
-        Some(Value::Array(arr)) => {
-            let strings: Result<Vec<String>, _> = arr.iter()
-                .map(|v| v.as_str().map(|s| s.to_string()).ok_or("..."))
-                .collect();
-
-            strings.map_err(Into::into)
-        }
-        _ => Err(ConfigError::MissingKey(String::from(key)))
-    }
-}
-
-fn get_u32_array<T>(arr: &Vec<Value>) -> Vec<u32> {
-    let xs: Vec<u32> = arr
-        .iter()
-        .map(|x| x.as_integer().and_then(|i| u32::try_from(i).ok()).unwrap())
-        .collect();
-    xs
-}
-
-fn get_string_value(table: &Table, key: &str) -> Option<String> {
-    let val = table.get(key);
-    match val {
-        None => None,
-        Some(s) => s.as_str().map(|s| s.to_string())
-    }
-}
-
-fn get_single_or_array_string(table: &Table, key: &str) -> Result<Vec<String>, ConfigError> {
-    match table.get(key) {
-        Some(Value::String(s)) => Ok(vec![s.to_string()]),
-        Some(Value::Array(arr)) => {
-            if !arr.iter().all(|val| val.is_str()) {
-                return Err(ConfigError::TypeError(format!("value for '{}' should be a string or array of strings", key)));
-            } else {
-                let strings: Vec<String> = arr.iter()
-                    .map(|v| v.as_str().unwrap().to_string())
-                    .collect();
-                return Ok(strings);
-            }
-
-        }
-        _ => Err(ConfigError::TypeError(format!("value for '{}' should be a string or array of strings", key)))
-    }
-}
-
 impl AlbumTags {
     pub fn from_toml(table: Table) -> Result<Self, ConfigError> {
         if !table.contains_key("tracks") {
             return Err(ConfigError::MissingKey(String::from("tracks")))
         }
 
-        let tracks = match get_string_array(&table, "tracks") {
+        let tracks = match get_string_array(&table, &["tracks"]) {
             Ok(arr) => arr,
             Err(e) => return Err(e)
         };
@@ -109,8 +63,12 @@ impl AlbumTags {
             Some(x) => x.to_string().parse::<u32>().ok(),
             _ => None
         };
+        let tracks_per_disc = match get_i64_array(&table, &["tracks_per_disc"]) {
+            Ok(arr) => Some(arr),
+            _ => None
+        }
         let tracks_per_disc: Option<Vec<u32>> = match table.get("tracks_per_disc") {
-            Some(Value::Array(x)) => Some(get_u32_array::<u32>(x)),
+            Some(Value::Array(x)) => Some(get_i64_array(x)),
             _ => None
         };
 

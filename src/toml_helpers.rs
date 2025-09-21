@@ -45,12 +45,12 @@ pub fn get_i64_value(table: &Table, keys: Vec<String>) -> Result<i64, TomlError>
     Err(TomlError::KeyNotFound("No matching key found"))
 }
 
-pub fn get_i64_array(table: &Table, keys: Vec<String>) -> Result<Vec<i64>, TomlError> {
+pub fn get_i64_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, TomlError<'a>> {
     for key in keys {
-        if !table.contains_key(key.as_str()) {
+        if !table.contains_key(*key) {
             continue;
         }
-        let val = table.get(key.as_str());
+        let val = table.get(*key);
         if val.is_none() || !val.unwrap().is_array(){
             continue;
         }
@@ -66,12 +66,12 @@ pub fn get_i64_array(table: &Table, keys: Vec<String>) -> Result<Vec<i64>, TomlE
     Err(TomlError::KeyNotFound("No matching key found"))
 }
 
-pub fn get_single_or_array_i64(table: &Table, keys: Vec<String>) -> Result<Vec<i64>, TomlError> {
+pub fn get_single_or_array_i64<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, TomlError<'a>> {
     for key in keys {
-        if !table.contains_key(key.as_str()) {
+        if !table.contains_key(*key) {
             continue;
         }
-        let val = table.get(key.as_str());
+        let val = table.get(*key);
         if val.is_none() {
             continue;
         }
@@ -106,12 +106,12 @@ pub fn get_string_value(table: &Table, keys: Vec<String>) -> Result<String, Toml
     Err(TomlError::KeyNotFound("No matching key found"))
 }
 
-pub fn get_string_array(table: &Table, keys: Vec<String>) -> Result<Vec<String>, TomlError> {
+pub fn get_string_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<String>, TomlError<'a>> {
     for key in keys {
-        if !table.contains_key(key.as_str()) {
+        if !table.contains_key(*key) {
             continue;
         }
-        let val = table.get(key.as_str());
+        let val = table.get(*key);
         if val.is_none() || !val.unwrap().is_array(){
             continue;
         }
