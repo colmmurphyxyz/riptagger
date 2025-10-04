@@ -56,7 +56,7 @@ pub fn normalize(s: &str) -> String {
         .filter(|c| !DISALLOWED_CHARS.contains(c)).collect::<String>()
 }
 
-pub fn rename_audio_file(file_path: &str, track_number: u32, track_name: &str) -> std::io::Result<String> {
+pub fn rename_audio_file<T: Into<i64>>(file_path: &str, track_number: T, track_name: &str) -> std::io::Result<String> {
     let parent = Path::new(file_path).parent().unwrap_or(Path::new("."));
     // original file extension, with leading .
     let extension = Path::new(file_path)
@@ -68,7 +68,7 @@ pub fn rename_audio_file(file_path: &str, track_number: u32, track_name: &str) -
     // I only plan on using this for tagging CD rips, unlikely this will ever be a problem.
     let new_name = format!(
         "{:#02} - {}{}",
-        track_number,
+        track_number.into(),
         normalize(track_name),
         extension.unwrap_or(String::from(".unknown")));
     let new_path = parent.join(&new_name);
