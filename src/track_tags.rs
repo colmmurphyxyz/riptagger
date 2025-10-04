@@ -11,14 +11,14 @@ use metaflac::block::PictureType::CoverFront;
 pub struct TrackTags {
     pub album_name: Option<String>,
     pub artist_name: Option<String>,
-    pub year: Option<u32>,
+    pub year: Option<i64>,
     pub track_name: String,
     pub genre: Vec<String>,
     pub picture_path: Option<String>,
-    pub track_number: Option<u32>,
-    pub track_total: Option<u32>,
-    pub disc_number: Option<u32>,
-    pub disc_total: Option<u32>,
+    pub track_number: Option<i64>,
+    pub track_total: Option<i64>,
+    pub disc_number: Option<i64>,
+    pub disc_total: Option<i64>,
 }
 
 impl fmt::Display for TrackTags {
