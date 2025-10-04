@@ -4,6 +4,7 @@
 use std::fs;
 use std::fmt;
 
+use std::error::Error;
 use toml::Table;
 
 use crate::album_tags::AlbumTags;
@@ -30,7 +31,14 @@ impl fmt::Display for ConfigError {
     }
 }
 
-impl std::error::Error for ConfigError {}
+impl Error for ConfigError {
+    fn description(&self) -> &str {
+        match *self {
+            ConfigError::MissingKey(ref s) => s,
+            ConfigError::TypeError(ref s) => s,
+        }
+    }
+}
 
 pub fn load_config_from_file(config_path: &str) -> Result<AlbumTags, Box<dyn std::error::Error>> {
     let config_file = fs::read_to_string(config_path)?;
