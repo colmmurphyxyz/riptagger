@@ -3,12 +3,12 @@ use toml::Table;
 
 use crate::config::ConfigError;
 
-pub fn get_i64_value(table: &Table, keys: Vec<String>) -> Result<i64, ConfigError> {
+pub fn get_i64_value(table: &Table, keys: &[&str]) -> Result<i64, ConfigError> {
     for key in keys {
-        if !table.contains_key(key.as_str()) {
+        if !table.contains_key(*key) {
             continue;
         }
-        let val = table.get(key.as_str());
+        let val = table.get(*key);
         if val.is_none() || !val.unwrap().is_integer() {
             continue;
         }
@@ -64,12 +64,12 @@ pub fn get_single_or_array_i64<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i
     Err(ConfigError::MissingKey(String::from("No matching key found")))
 }
 
-pub fn get_string_value(table: &Table, keys: Vec<String>) -> Result<String, ConfigError> {
+pub fn get_string_value(table: &Table, keys: &[&str]) -> Result<String, ConfigError> {
     for key in keys {
-        if !table.contains_key(key.as_str()) {
+        if !table.contains_key(*key) {
             continue;
         }
-        let val = table.get(key.as_str());
+        let val = table.get(*key);
         if val.is_none() || !val.unwrap().is_str() {
             continue;
         }
@@ -99,12 +99,12 @@ pub fn get_string_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<String>,
     Err(ConfigError::MissingKey(String::from("No matching key found")))
 }
 
-pub fn get_single_or_array_string(table: &Table, keys: Vec<String>) -> Result<Vec<String>, ConfigError> {
+pub fn get_single_or_array_string(table: &Table, keys: &[&str]) -> Result<Vec<String>, ConfigError> {
     for key in keys {
-        if !table.contains_key(key.as_str()) {
+        if !table.contains_key(*key) {
             continue;
         }
-        let val = table.get(key.as_str());
+        let val = table.get(*key);
         if val.is_none() {
             continue;
         }
