@@ -1,37 +1,9 @@
-use std::error::Error;
-use std::fmt::Display;
 
 use toml::Table;
 
-#[derive(Debug)]
-pub enum TomlError<'a> {
-    KeyNotFound(&'a str),
-    TypeError(&'a str),
-    Other(&'a str),
-}
+use crate::config::ConfigError;
 
-impl Display for TomlError<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
-            TomlError::KeyNotFound(s) => write!(f, "Key not found: {}", s),
-            TomlError::TypeError(s) => write!(f, "Type error: {}", s),
-            TomlError::Other(s) => write!(f, "Error: {}", s),
-        }
-    }
-}
-
-impl Error for TomlError<'_> {
-    fn description(&self) -> &str {
-        match *self {
-            TomlError::KeyNotFound(s) => s,
-            TomlError::TypeError(s) => s,
-            TomlError::Other(s) => s,
-        }
-    }
-
-}
-
-pub fn get_i64_value(table: &Table, keys: Vec<String>) -> Result<i64, TomlError> {
+pub fn get_i64_value(table: &Table, keys: Vec<String>) -> Result<i64, ConfigError> {
     for key in keys {
         if !table.contains_key(key.as_str()) {
             continue;
@@ -42,10 +14,10 @@ pub fn get_i64_value(table: &Table, keys: Vec<String>) -> Result<i64, TomlError>
         }
         return Ok(val.unwrap().as_integer().unwrap());
     }
-    Err(TomlError::KeyNotFound("No matching key found"))
+    Err(ConfigError::MissingKey(String::from("No matching key found")))
 }
 
-pub fn get_i64_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, TomlError<'a>> {
+pub fn get_i64_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, ConfigError> {
     for key in keys {
         if !table.contains_key(*key) {
             continue;
@@ -63,10 +35,10 @@ pub fn get_i64_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, TomlE
         }
         return Ok(integers.unwrap());
     }
-    Err(TomlError::KeyNotFound("No matching key found"))
+    Err(ConfigError::MissingKey(String::from("No matching key found")))
 }
 
-pub fn get_single_or_array_i64<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, TomlError<'a>> {
+pub fn get_single_or_array_i64<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, ConfigError> {
     for key in keys {
         if !table.contains_key(*key) {
             continue;
@@ -89,10 +61,10 @@ pub fn get_single_or_array_i64<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i
             return Ok(integers.unwrap());
         }
     }
-    Err(TomlError::KeyNotFound("No matching key found"))
+    Err(ConfigError::MissingKey(String::from("No matching key found")))
 }
 
-pub fn get_string_value(table: &Table, keys: Vec<String>) -> Result<String, TomlError> {
+pub fn get_string_value(table: &Table, keys: Vec<String>) -> Result<String, ConfigError> {
     for key in keys {
         if !table.contains_key(key.as_str()) {
             continue;
@@ -103,10 +75,10 @@ pub fn get_string_value(table: &Table, keys: Vec<String>) -> Result<String, Toml
         }
         return Ok(val.unwrap().as_str().unwrap().to_string());
     }
-    Err(TomlError::KeyNotFound("No matching key found"))
+Err(ConfigError::MissingKey(String::from("No matching key found")))
 }
 
-pub fn get_string_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<String>, TomlError<'a>> {
+pub fn get_string_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<String>, ConfigError> {
     for key in keys {
         if !table.contains_key(*key) {
             continue;
@@ -124,10 +96,10 @@ pub fn get_string_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<String>,
         }
         return Ok(strings.unwrap());
     }
-    Err(TomlError::KeyNotFound("No matching key found"))
+    Err(ConfigError::MissingKey(String::from("No matching key found")))
 }
 
-pub fn get_single_or_array_string(table: &Table, keys: Vec<String>) -> Result<Vec<String>, TomlError> {
+pub fn get_single_or_array_string(table: &Table, keys: Vec<String>) -> Result<Vec<String>, ConfigError> {
     for key in keys {
         if !table.contains_key(key.as_str()) {
             continue;
@@ -150,5 +122,5 @@ pub fn get_single_or_array_string(table: &Table, keys: Vec<String>) -> Result<Ve
             return Ok(strings.unwrap());
         }
     }
-    Err(TomlError::KeyNotFound("No matching key found"))
+    Err(ConfigError::MissingKey(String::from("No matching key found")))
 }
