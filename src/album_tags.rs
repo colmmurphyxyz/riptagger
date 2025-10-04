@@ -2,9 +2,9 @@
 // GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 use std::fmt;
 use std::path::Path;
-use toml::{Table, Value};
+use toml::Table;
 
-use crate::toml_helpers::{get_i64_array, get_i64_value, get_string_array, get_single_or_array_string};
+use crate::toml_helpers::{get_i64_array, get_i64_value, get_single_or_array_string, get_string_array, get_string_value};
 use crate::config::ConfigError;
 use crate::fs_utils::get_current_directory;
 use crate::TrackTags;
@@ -13,12 +13,12 @@ use crate::TrackTags;
 pub struct AlbumTags {
     pub album_name: Option<String>,
     pub artist_name: Option<String>,
-    pub year: Option<u32>,
+    pub year: Option<i64>,
     pub genre: Vec<String>,
     pub picture_path: Option<String>,
     pub tracks: Vec<String>,
-    pub disc_total: Option<u32>,
-    pub tracks_per_disc: Option<Vec<u32>>,
+    pub disc_total: Option<i64>,
+    pub tracks_per_disc: Option<Vec<i64>>,
 }
 
 impl fmt::Display for AlbumTags {
@@ -54,21 +54,22 @@ impl AlbumTags {
             return Err(ConfigError::MissingKey(String::from("tracks")))
         }
 
+        let year = match get_i64_value(&table, &["year"]) {
+            Ok(x) => Some(x),
+            _ => None
+        };
+
         let tracks = match get_string_array(&table, &["tracks"]) {
             Ok(arr) => arr,
             Err(e) => return Err(e)
         };
 
-        let disc_total = match table.get("disc_total") {
-            Some(x) => x.to_string().parse::<u32>().ok(),
+        let disc_total = match get_i64_value(&table, &["disc_total"]) {
+            Ok(x) => Some(x),
             _ => None
         };
         let tracks_per_disc = match get_i64_array(&table, &["tracks_per_disc"]) {
             Ok(arr) => Some(arr),
-            _ => None
-        }
-        let tracks_per_disc: Option<Vec<u32>> = match table.get("tracks_per_disc") {
-            Some(Value::Array(x)) => Some(get_i64_array(x)),
             _ => None
         };
 
@@ -83,10 +84,10 @@ impl AlbumTags {
 
         // FIXME: this is not very safe
         Ok(AlbumTags {
-            artist_name: get_string_value(&table, "artist"),
-            album_name: get_string_value(&table, "album"),
-            year: table.get("year").and_then(|o| o.to_string().parse::<u32>().ok()),
-            genre: get_single_or_array_string(&table, "genre").unwrap_or(vec![]),
+            artist_name: get_string_value(&table, &["artist"]).ok(),
+            album_name: get_string_value(&table, &["album"]).ok(),
+            year,
+            genre: get_single_or_array_string(&table, &["genre"]).unwrap_or(vec![]),
             picture_path: pic_path_str,
             tracks: tracks,
             disc_total: disc_total,
@@ -95,14 +96,14 @@ impl AlbumTags {
     }
 }
 
-fn get_disc_number(tracks_per_disc: &Vec<u32>, track_num: u32) -> u32 {
+fn get_disc_number(tracks_per_disc: &Vec<i64>, track_num: i64) -> i64 {
     let mut x = 0;
     let mut i: usize = 0;
     while x <= track_num && i < tracks_per_disc.len() {
         x += tracks_per_disc[i];
         i += 1;
     }
-    i as u32
+    i as i64
 }
 
 pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
@@ -111,7 +112,7 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
     let track_total = album.tracks.len();
     while index < track_total {
         let disc_num = match &album.tracks_per_disc {
-            Some(tpd) => Some(get_disc_number(&tpd, index as u32)),
+            Some(tpd) => Some(get_disc_number(tpd, index as i64)),
             None => None
         };
         tags.push(TrackTags {
@@ -121,8 +122,8 @@ pub fn to_track_tags(album: AlbumTags) -> Vec<TrackTags> {
             track_name: album.tracks[index].clone(),
             genre: album.genre.clone(),
             picture_path: album.picture_path.clone(),
-            track_number: Some((index + 1) as u32),
-            track_total: Some(track_total as u32),
+            track_number: Some((index + 1) as i64),
+            track_total: Some(track_total as i64),
             disc_number: disc_num,
             disc_total: album.disc_total,
         });
