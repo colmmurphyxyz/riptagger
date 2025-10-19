@@ -17,3 +17,6 @@ pub mod config_tests;
 #[cfg(test)]
 pub mod fs_utils_tests;
 
+#[cfg(test)]
+pub mod toml_helpers_tests;
+
