@@ -1,9 +1,10 @@
 // Copyright: (c) 2025, Colm Murphy
 // GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-use std::fs;
 use std::fmt;
+use std::fs;
 
+use std::error::Error;
 use toml::Table;
 
 use crate::album_tags::AlbumTags;
@@ -30,7 +31,7 @@ impl fmt::Display for ConfigError {
     }
 }
 
-impl std::error::Error for ConfigError {}
+impl Error for ConfigError {}
 
 pub fn load_config_from_file(config_path: &str) -> Result<AlbumTags, Box<dyn std::error::Error>> {
     let config_file = fs::read_to_string(config_path)?;

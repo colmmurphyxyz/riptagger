@@ -1,3 +1,5 @@
+// Copyright: (c) 2025, Colm Murphy
+// GNU General Public License v3.0 (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 use std::env::temp_dir;
 use std::io;
 use std::fs::{copy, read_dir, remove_dir_all, create_dir_all};
