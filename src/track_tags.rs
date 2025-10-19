@@ -80,7 +80,7 @@ pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Er
     }
 
     if !&tags.genre.is_empty() {
-        file.set_vorbis("GENRE",tags.genre.clone()); 
+        file.set_vorbis("GENRE", tags.genre.clone()); 
     }
 
     if let Some(disc_num) = &tags.disc_number {
