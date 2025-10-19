@@ -4,8 +4,8 @@
 use std::fmt;
 use std::fs::read;
 
-use metaflac::{Tag, Error};
 use metaflac::block::PictureType::CoverFront;
+use metaflac::{Error, Tag};
 
 #[derive(Debug)]
 pub struct TrackTags {
@@ -24,37 +24,33 @@ pub struct TrackTags {
 impl fmt::Display for TrackTags {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "album_name: {:?}\n", self.album_name)
-        .and_then(|_|
-            write!(f, "artist_name: {:?}\n", self.artist_name)
-        )
-        .and_then(|_|
-            write!(f, "year: {:?}\n", self.year.map(|s| s.to_string()))
-        )
-        .and_then(|_|
-            write!(f, "track_name: {:?}\n", self.track_name)
-        )
-        .and_then(|_|
-            write!(f, "genre: {:?}\n", self.genre)
-        )
-        .and_then(|_|
-            write!(f, "track_number: {:?}\n", self.track_number)
-        )
-        .and_then(|_|
-            write!(f, "track_total: {:?}\n", self.track_total)
-        )
-        .and_then(|_|
-            write!(f, "disc_number: {:?}\n", self.disc_number.map(|x| x.to_string()))
-        )
-        .and_then(|_|
-            write!(f, "disc_total: {:?}", self.disc_total.map(|x| x.to_string()))
-        )
+            .and_then(|_| write!(f, "artist_name: {:?}\n", self.artist_name))
+            .and_then(|_| write!(f, "year: {:?}\n", self.year.map(|s| s.to_string())))
+            .and_then(|_| write!(f, "track_name: {:?}\n", self.track_name))
+            .and_then(|_| write!(f, "genre: {:?}\n", self.genre))
+            .and_then(|_| write!(f, "track_number: {:?}\n", self.track_number))
+            .and_then(|_| write!(f, "track_total: {:?}\n", self.track_total))
+            .and_then(|_| {
+                write!(
+                    f,
+                    "disc_number: {:?}\n",
+                    self.disc_number.map(|x| x.to_string())
+                )
+            })
+            .and_then(|_| {
+                write!(
+                    f,
+                    "disc_total: {:?}",
+                    self.disc_total.map(|x| x.to_string())
+                )
+            })
     }
 }
 
 pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Error> {
     let mut file = match Tag::read_from_path(track_path) {
         Ok(f) => f,
-        Err(e) => { return Err(e) }
+        Err(e) => return Err(e),
     };
 
     if let Some(album_name) = &tags.album_name {
@@ -80,7 +76,7 @@ pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Er
     }
 
     if !&tags.genre.is_empty() {
-        file.set_vorbis("GENRE", tags.genre.clone()); 
+        file.set_vorbis("GENRE", tags.genre.clone());
     }
 
     if let Some(disc_num) = &tags.disc_number {
