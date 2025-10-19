@@ -15,7 +15,9 @@ pub fn get_i64_value(table: &Table, keys: &[&str]) -> Result<i64, ConfigError> {
         }
         return Ok(val.unwrap().as_integer().unwrap());
     }
-    Err(ConfigError::MissingKey(String::from("No matching key found")))
+    Err(ConfigError::MissingKey(String::from(
+        "No matching key found",
+    )))
 }
 
 pub fn get_i64_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, ConfigError> {
@@ -24,19 +26,19 @@ pub fn get_i64_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, Confi
             continue;
         }
         let val = table.get(*key);
-        if val.is_none() || !val.unwrap().is_array(){
+        if val.is_none() || !val.unwrap().is_array() {
             continue;
         }
         let arr = val.unwrap().as_array().unwrap();
-        let integers: Option<Vec<i64>> = arr.iter()
-            .map(|v| v.as_integer())
-            .collect();
+        let integers: Option<Vec<i64>> = arr.iter().map(|v| v.as_integer()).collect();
         if integers.is_none() {
             continue;
         }
         return Ok(integers.unwrap());
     }
-    Err(ConfigError::MissingKey(String::from("No matching key found")))
+    Err(ConfigError::MissingKey(String::from(
+        "No matching key found",
+    )))
 }
 
 pub fn get_single_or_array_i64<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i64>, ConfigError> {
@@ -50,19 +52,19 @@ pub fn get_single_or_array_i64<'a>(table: &Table, keys: &[&str]) -> Result<Vec<i
         }
         let v = val.unwrap();
         if v.is_integer() {
-            return Ok(vec![v.as_integer().unwrap()])
+            return Ok(vec![v.as_integer().unwrap()]);
         } else if v.is_array() {
             let arr = v.as_array().unwrap();
-            let integers: Option<Vec<i64>> = arr.iter()
-                .map(|v| v.as_integer())
-                .collect();
+            let integers: Option<Vec<i64>> = arr.iter().map(|v| v.as_integer()).collect();
             if integers.is_none() {
                 continue;
             }
             return Ok(integers.unwrap());
         }
     }
-    Err(ConfigError::MissingKey(String::from("No matching key found")))
+    Err(ConfigError::MissingKey(String::from(
+        "No matching key found",
+    )))
 }
 
 pub fn get_string_value(table: &Table, keys: &[&str]) -> Result<String, ConfigError> {
@@ -76,7 +78,9 @@ pub fn get_string_value(table: &Table, keys: &[&str]) -> Result<String, ConfigEr
         }
         return Ok(val.unwrap().as_str().unwrap().to_string());
     }
-Err(ConfigError::MissingKey(String::from("No matching key found")))
+    Err(ConfigError::MissingKey(String::from(
+        "No matching key found",
+    )))
 }
 
 pub fn get_string_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<String>, ConfigError> {
@@ -85,11 +89,12 @@ pub fn get_string_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<String>,
             continue;
         }
         let val = table.get(*key);
-        if val.is_none() || !val.unwrap().is_array(){
+        if val.is_none() || !val.unwrap().is_array() {
             continue;
         }
         let arr = val.unwrap().as_array().unwrap();
-        let strings: Option<Vec<String>> = arr.iter()
+        let strings: Option<Vec<String>> = arr
+            .iter()
             .map(|v| v.as_str().map(|s| s.to_string()))
             .collect();
         if strings.is_none() {
@@ -97,10 +102,15 @@ pub fn get_string_array<'a>(table: &Table, keys: &[&str]) -> Result<Vec<String>,
         }
         return Ok(strings.unwrap());
     }
-    Err(ConfigError::MissingKey(String::from("No matching key found")))
+    Err(ConfigError::MissingKey(String::from(
+        "No matching key found",
+    )))
 }
 
-pub fn get_single_or_array_string(table: &Table, keys: &[&str]) -> Result<Vec<String>, ConfigError> {
+pub fn get_single_or_array_string(
+    table: &Table,
+    keys: &[&str],
+) -> Result<Vec<String>, ConfigError> {
     for key in keys {
         if !table.contains_key(*key) {
             continue;
@@ -111,10 +121,11 @@ pub fn get_single_or_array_string(table: &Table, keys: &[&str]) -> Result<Vec<St
         }
         let v = val.unwrap();
         if v.is_str() {
-            return Ok(vec![v.as_str().unwrap().to_string()])
+            return Ok(vec![v.as_str().unwrap().to_string()]);
         } else if v.is_array() {
             let arr = v.as_array().unwrap();
-            let strings: Option<Vec<String>> = arr.iter()
+            let strings: Option<Vec<String>> = arr
+                .iter()
                 .map(|v| v.as_str().map(|s| s.to_string()))
                 .collect();
             if strings.is_none() {
@@ -123,5 +134,7 @@ pub fn get_single_or_array_string(table: &Table, keys: &[&str]) -> Result<Vec<St
             return Ok(strings.unwrap());
         }
     }
-    Err(ConfigError::MissingKey(String::from("No matching key found")))
+    Err(ConfigError::MissingKey(String::from(
+        "No matching key found",
+    )))
 }
