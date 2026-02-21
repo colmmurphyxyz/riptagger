@@ -84,12 +84,12 @@ pub fn assign_tags_to_track(tags: &TrackTags, track_path: &str) -> Result<(), Er
     }
 
     if let Some(disc_total) = &tags.disc_total {
-        file.set_vorbis("TOTALDISCS", vec![disc_total.to_string()])
+        file.set_vorbis("TOTALDISCS", vec![disc_total.to_string()]);
     }
 
     if let Some(cover_path) = &tags.picture_path {
         let pic = read(cover_path).unwrap();
-        file.add_picture("image/jpeg", CoverFront, pic)
+        file.add_picture("image/jpeg", CoverFront, pic);
     }
 
     file.save()
